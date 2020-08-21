@@ -17,27 +17,35 @@
     </p>
     </div>
     <h2 class="float-left"></h2>
-    
     <hr>
-
     <div id="emails-view">
         <div class="card text-center">
             <div class="card-header bg-success">
                 <h3 id="inbox-header"></h3>
             </div>
             <div class="card-body">
-                <h5 class="card-title"></h5>
+                <h5 id="inbox-title" class="card-title"></h5>
+                <table class="table">
+                    <thead>
+                      <tr>
+                        <th scope="col">From</th>
+                        <th scope="col">Subject</th>
+                        <th scope="col">Date</th>
+                      </tr>
+                    </thead>
+                    <tbody id="inbox-body">
+                    </tbody>
+                  </table>
             </div>
-            
         </div>
     </div>
 
     <div id="compose-view">
-        <div class="card text-center">
+        <div class="card text-center mb-3">
             <div class="card-header bg-success">
                 <h3>New Email</h3>
             </div>
-            <div class="card-body">
+            <div class="card-body bg-light">
                 <h5 class="card-title">
                     Send a new e-mail here.
                 </h5>
@@ -52,7 +60,7 @@
                     <input class="form-control" id="compose-subject" placeholder="Subject">
                 </div>
                 <textarea class="form-control" id="compose-body" placeholder="Body"></textarea>
-                <input type="submit" class="btn btn-success mt-3 mb-3"/>
+                <input type="submit" class="btn btn-success mt-3 mb-2"/>
             </form>
             </div>
         </div>
@@ -60,5 +68,5 @@
 {% endblock %}
 
 {% block script %}
-    <script defer src="{% static 'mail/js/inbox.js' %}"></script>
+    <script defer type="text/javascript" src="{% static 'mail/js/inbox.js' %}"></script>
 {% endblock %}
