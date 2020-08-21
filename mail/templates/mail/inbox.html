@@ -2,36 +2,63 @@
 {% load static %}
 
 {% block body %}
-    <h2>{{ request.user.email }}</h2>
-
-    <button class="btn btn-sm btn-outline-primary" id="inbox">Inbox</button>
-    <button class="btn btn-sm btn-outline-primary" id="compose">Compose</button>
-    <button class="btn btn-sm btn-outline-primary" id="sent">Sent</button>
-    <button class="btn btn-sm btn-outline-primary" id="archived">Archived</button>
-    <a class="btn btn-sm btn-outline-primary" href="{% url 'logout' %}">Log Out</a>
+    <div class="jumbotron bg-success">
+    <h1 class="display-4">Welcome to Mail!</h1>
+    <img src="{% static 'mail/img/maillogo.png' %}" alt="Mail logo">
+    <p class="lead">Click on an inbox from the menu below to access it.</p>
+    <hr class="my-4">
+    <p class="lead">
+        <button class="btn btn-sm btn-outline-light" id="inbox">Inbox</button>
+        <button class="btn btn-sm btn-outline-light" id="compose">Compose</button>
+        <button class="btn btn-sm btn-outline-light" id="sent">Sent</button>
+        <button class="btn btn-sm btn-outline-light" id="archived">Archived</button>
+        <a class="btn btn-sm btn-outline-light" href="{% url 'logout' %}">Log Out</a>
+        <p class="float-right">You are logged in as <strong>{{ request.user.email }}</strong>.</p>
+    </p>
+    </div>
+    <h2 class="float-left"></h2>
+    
     <hr>
 
     <div id="emails-view">
+        <div class="card text-center">
+            <div class="card-header bg-success">
+                <h3 id="inbox-header"></h3>
+            </div>
+            <div class="card-body">
+                <h5 class="card-title"></h5>
+            </div>
+            
+        </div>
     </div>
 
     <div id="compose-view">
-        <h3>New Email</h3>
-        <form id="compose-form">
-            <div class="form-group">
-                From: <input disabled class="form-control" value="{{ request.user.email }}">
+        <div class="card text-center">
+            <div class="card-header bg-success">
+                <h3>New Email</h3>
             </div>
-            <div class="form-group">
-                To: <input id="compose-recipients" class="form-control">
+            <div class="card-body">
+                <h5 class="card-title">
+                    Send a new e-mail here.
+                </h5>
+                <form id="compose-form">
+                <div class="form-group">
+                    From: <input disabled class="form-control" value="{{ request.user.email }}">
+                </div>
+                <div class="form-group">
+                    To: <input id="compose-recipients" class="form-control">
+                </div>
+                <div class="form-group">
+                    <input class="form-control" id="compose-subject" placeholder="Subject">
+                </div>
+                <textarea class="form-control" id="compose-body" placeholder="Body"></textarea>
+                <input type="submit" class="btn btn-success mt-3 mb-3"/>
+            </form>
             </div>
-            <div class="form-group">
-                <input class="form-control" id="compose-subject" placeholder="Subject">
-            </div>
-            <textarea class="form-control" id="compose-body" placeholder="Body"></textarea>
-            <input type="submit" class="btn btn-primary"/>
-        </form>
+        </div>
     </div>
 {% endblock %}
 
 {% block script %}
-    <script src="{% static 'mail/inbox.js' %}"></script>
+    <script defer src="{% static 'mail/js/inbox.js' %}"></script>
 {% endblock %}
