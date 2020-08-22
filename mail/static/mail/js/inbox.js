@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', function() {
   document.querySelector('#sent').addEventListener('click', () => load_mailbox('sent'));
   document.querySelector('#archived').addEventListener('click', () => load_mailbox('archive'));
   document.querySelector('#compose').addEventListener('click', compose_email);
-  document.querySelector('#compose-form').addEventListener('submit', submit_email);
+  document.querySelector('#compose-form').addEventListener('submit', submit_email(e));
 });
 
 function compose_email() {
@@ -28,12 +28,14 @@ function load_mailbox(mailbox) {
 
   // Show the mailbox name
   document.querySelector('#inbox-header').innerHTML = `${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}`;
+  clearcontent("inbox-body");
   const inboxbody = document.querySelector("#inbox-body");
   fetch(`/emails/${mailbox}`)
   .then(response => response.json())
   .then(emails => {
-      // Print emails
-      console.log(emails);
+    // Print emails
+    console.log(emails);
+    if (emails.length > 0) {
       for (var i = 0; i < emails.length; i++)
       {
         var newTr = document.createElement("tr");
@@ -46,15 +48,29 @@ function load_mailbox(mailbox) {
         newTr.appendChild(newTd1);
         newTr.appendChild(newTd2);
         newTr.appendChild(newTd3);
-        if (!emails[i].read) {
-          newTr.className = "font-weight-bold"
+        if (emails[i].read && mailbox == "inbox") {
+          newTr.className = "bg-secondary font-weight-normal";
+        }
+        else if (!emails[i].read && mailbox == "inbox") {
+          newTr.className = "bg-light font-weight-bold";
         }
         inboxbody.appendChild(newTr);
       }
+    }
+    else {
+      var newTr = document.createElement("tr");
+      newTr.className = "bg-light";
+      var newTd = document.createElement("td");
+      newTd.colSpan = "3";
+      newTd.textContent = `No emails in your ${mailbox} mailbox yet.`
+      newTr.appendChild(newTd);
+      inboxbody.appendChild(newTr);
+    }
   });
 }
 
-function submit_email() {
+function submit_email(e) {
+  e.preventDefault();
   fetch('/emails', {
     method: 'POST',
     body: JSON.stringify({
@@ -67,6 +83,10 @@ function submit_email() {
   .then(result => {
       // Print result
       console.log(result);
-      load_mailbox("inbox");
   });
+  load_mailbox("sent");
+}
+
+function clearcontent(elementID) {
+  document.querySelector(`#${elementID}`).innerHTML = "";
 }
