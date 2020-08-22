@@ -5,3 +5,18 @@ textarea {
 #emails-view {
     display: none;
 }
+
+#inbox-body tr:hover {
+    background-color: #28a745!important;
+    cursor: pointer;
+    transition: background-color 300ms;
+}
+
+.modal {
+    background-color: rgba(0, 0, 0, 0.5);
+    transition: background-color 300ms;
+}
+
+.modal-content {
+    top: 270px;
+}
