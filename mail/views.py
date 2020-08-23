@@ -118,7 +118,7 @@ def email(request, email_id):
         if data.get("archived") is not None:
             email.archived = data["archived"]
         email.save()
-        return JsonResponse({"message": "Email modified successfully."}, status=204)
+        return HttpResponse(status=204)
 
     # Email must be via GET or PUT
     else:

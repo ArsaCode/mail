@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
   document.querySelector("#button1").addEventListener("click", () => evbuttons(event));
   document.querySelector("#button2").addEventListener("click", () => evbuttons(event));
   document.querySelector("#button3").addEventListener("click", () => evbuttons(event));
+  document.querySelector("#button4").addEventListener("click", () => evbuttons(event));
 });
 
 function compose_email() {
@@ -68,6 +69,7 @@ function load_mailbox(mailbox) {
       var newTd = document.createElement("td");
       newTd.colSpan = "3";
       newTd.textContent = `No emails in your ${mailbox} mailbox yet.`;
+      newTd.dataset.emptybox = "true";
       newTr.appendChild(newTd);
       inboxbody.appendChild(newTr);
     }
@@ -93,50 +95,66 @@ function submit_email(e) {
 }
 
 function load_email(ev) {
-  document.querySelector(".modal").style.display = "block";
-  console.log(ev.target.parentElement.dataset.emailid);
-  fetch(`/emails/${ev.target.parentElement.dataset.emailid}`, {
-    method: 'PUT',
-    body: JSON.stringify({
-        read: true
-    })
-  });
-  fetch(`/emails/${ev.target.parentElement.dataset.emailid}`)
-  .then(response => response.json())
-  .then(email => {
-    // Print email
-    console.log(email);
-    document.querySelector("#mailsender").innerHTML = `<strong>From</strong> : ${email.sender}`;
-    document.querySelector("#mailrecipient").innerHTML = `<strong>To</strong> :`;
-    var recips = document.querySelector("#mailrecipient");
-    for (var c = 0; c < email.recipients.length; c++) {
-      var newSpan = document.createElement("span");
-      newSpan.innerHTML = email.recipients[c];
-      recips.appendChild(newSpan);
-    }
-    document.querySelector("#mailsubject").innerHTML = `<strong>Subject</strong> : ${email.subject}`;
-    document.querySelector("#maildate").innerHTML = `<strong>Date</strong> : ${email.timestamp}`;
-    document.querySelector("#mailcontent").innerHTML = `<strong>Body</strong> : ${email.body}`;
-    var boxname = document.querySelector("#inbox-header").innerHTML;
-    var btn1 = document.querySelector("#button1");
-    btn1.className = "btn btn-danger";
-    btn1.dataset.emailid = `${ev.target.parentElement.dataset.emailid}`;
-    btn1.innerHTML = "Close";
-    if (boxname == "Inbox") {
+  if (ev.target.dataset.emptybox != "true") {
+    document.querySelector(".modal").style.display = "block";
+    console.log(ev.target.parentElement.dataset.emailid);
+    fetch(`/emails/${ev.target.parentElement.dataset.emailid}`, {
+      method: 'PUT',
+      body: JSON.stringify({
+          read: true
+      })
+    });
+    fetch(`/emails/${ev.target.parentElement.dataset.emailid}`)
+    .then(response => response.json())
+    .then(email => {
+      // Print email
+      console.log(email);
+      document.querySelector("#mailsender").innerHTML = `<strong>From</strong> : ${email.sender}`;
+      document.querySelector("#mailrecipient").innerHTML = `<strong>To</strong> : `;
+      var recips = document.querySelector("#mailrecipient");
+      for (var c = 0; c < email.recipients.length; c++) {
+        var newSpan = document.createElement("span");
+        newSpan.innerHTML = email.recipients[c];
+        recips.appendChild(newSpan);
+      }
+      document.querySelector("#mailsubject").innerHTML = `<strong>Subject</strong> : ${email.subject}`;
+      document.querySelector("#maildate").innerHTML = `<strong>Date</strong> : ${email.timestamp}`;
+      email.body = email.body.replace(/(?:\r\n|\r|\n)/g, '<br>');
+      document.querySelector("#mailcontent").innerHTML = `<strong>Body</strong> : <br> ${email.body}`;
+      var boxname = document.querySelector("#inbox-header").innerHTML;
+      var btn1 = document.querySelector("#button1");
       var btn2 = document.querySelector("#button2");
-      btn2.style.display = "block";
-      btn2.className = "btn btn-primary";
-      btn2.dataset.emailid = `${ev.target.parentElement.dataset.emailid}`;
-      btn2.innerHTML = "Archive";
-    }
-    else if (boxname == "Archive") {
       var btn3 = document.querySelector("#button3");
-      btn3.style.display = "block";
-      btn3.className = "btn btn-warning";
-      btn3.dataset.emailid = `${ev.target.parentElement.dataset.emailid}`;
-      btn3.innerHTML = "Unarchive";
-    }
-  });
+      var btn4 = document.querySelector("#button4");
+      btn1.className = "btn btn-danger";
+      btn1.dataset.emailid = `${ev.target.parentElement.dataset.emailid}`;
+      btn1.innerHTML = "Close";
+      if (boxname == "Inbox") {
+        btn2.style.display = "block";
+        btn2.className = "btn btn-warning";
+        btn2.dataset.emailid = `${ev.target.parentElement.dataset.emailid}`;
+        btn2.innerHTML = "Archive";
+        btn4.style.display = "block";
+        btn4.className = "btn btn-primary";
+        btn4.dataset.emailid = `${ev.target.parentElement.dataset.emailid}`;
+        btn4.innerHTML = "Reply";
+      }
+      if (boxname == "Sent") {
+        btn4.style.display = "none";
+        btn3.style.display = "none";
+        btn2.style.display = "none";
+      }
+      else if (boxname == "Archive") {
+        btn4.style.display = "none";
+        btn2.style.display = "none";
+        var btn3 = document.querySelector("#button3");
+        btn3.style.display = "block";
+        btn3.className = "btn btn-warning";
+        btn3.dataset.emailid = `${ev.target.parentElement.dataset.emailid}`;
+        btn3.innerHTML = "Unarchive";
+      }
+    });
+  }
 }
 
 function evbuttons(evt) {
@@ -153,11 +171,53 @@ function evbuttons(evt) {
           archived: true
       })
     })
-    .then(response => response.json())
-    .then(isarchieved => {
+    .then(response => {
       document.querySelector(".modal").style.display = "none";
-      console.log(isarchieved);
-      load_mailbox("archive");
+      load_mailbox("inbox");
     });
-  };
+  }
+  else if (actualBox == "Inbox" && btnclicked == "button4") {
+    document.querySelector(".modal").style.display = "none";
+    reply_email(evt.target.dataset.emailid);
+  }
+  else if (actualBox == "Sent" && btnclicked == "button1") {
+    document.querySelector(".modal").style.display = "none";
+    load_mailbox("sent");
+  }
+  else if (actualBox == "Archive" && btnclicked == "button1") {
+    document.querySelector(".modal").style.display = "none";
+    load_mailbox("archive");
+  }
+  else if (actualBox == "Archive" && btnclicked == "button3") {
+    fetch(`/emails/${evt.target.dataset.emailid}`, {
+      method: 'PUT',
+      body: JSON.stringify({
+          archived: false
+      })
+    })
+    .then(response => {
+      document.querySelector(".modal").style.display = "none";
+      load_mailbox("inbox");
+    });
+  }
+}
+
+function reply_email(emailId) {
+  // Show compose view and hide other views
+  document.querySelector('#emails-view').style.display = 'none';
+  document.querySelector('#compose-view').style.display = 'block';
+
+  // Clear out composition fields
+  document.querySelector('#compose-recipients').value = '';
+  document.querySelector('#compose-subject').value = '';
+  document.querySelector('#compose-body').value = '';
+  fetch(`/emails/${emailId}`)
+  .then(response => response.json())
+  .then(email => {
+    // Print email
+    console.log(email);
+    document.querySelector('#compose-recipients').value = email.sender;
+    document.querySelector('#compose-subject').value = "Re : " + email.subject;
+    document.querySelector('#compose-body').value = "\r\n\r\n\r\n" + "Original message on " + email.timestamp + ": \r\n" + email.body;
+  });
 }

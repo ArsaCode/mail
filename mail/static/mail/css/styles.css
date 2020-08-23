@@ -28,3 +28,12 @@ textarea {
 #button3 {
     display: none;
 }
+
+#button4 {
+    display: none;
+}
+
+#mailcontent {
+    height: 180px;
+    overflow-y: scroll;
+}

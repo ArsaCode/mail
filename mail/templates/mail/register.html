@@ -1,27 +1,41 @@
 {% extends "mail/layout.html" %}
+{% load static %}
 
 {% block body %}
-
-    <h2>Register</h2>
-
-    {% if message %}
-        <div>{{ message }}</div>
-    {% endif %}
-
-    <form action="{% url 'register' %}" method="post">
-        {% csrf_token %}
-        <div class="form-group">
-            <input class="form-control" type="email" name="email" placeholder="Email Address">
+    <div class="jumbotron bg-success">
+    <h1 class="display-4">Welcome to Mail!</h1>
+    <img src="{% static 'mail/img/maillogo.png' %}" alt="Mail logo">
+    <p class="lead">Please login to your account or register.</p>
+    <hr class="my-4">
+    <p class="lead">
+        <a class="btn btn-sm btn-outline-light" href="{% url 'login' %}">Login</a>
+        <a class="btn btn-sm btn-outline-light" href="{% url 'register' %}">Register</a>
+        <p class="float-right">You are not logged in</strong>.</p>
+    </p>
+    </div>
+    <div class="card text-center mb-3">
+        <div class="card-header bg-success">
+            <h2>Register</h2>
         </div>
-        <div class="form-group">
-            <input class="form-control" type="password" name="password" placeholder="Password">
+        <div class="card-body bg-light">
+            {% if message %}
+                <div>{{ message }}</div>
+            {% endif %}
+            <form action="{% url 'register' %}" method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <input class="form-control" type="email" name="email" placeholder="Email Address">
+                </div>
+                <div class="form-group">
+                    <input class="form-control" type="password" name="password" placeholder="Password">
+                </div>
+                <div class="form-group">
+                    <input class="form-control" type="password" name="confirmation" placeholder="Confirm Password">
+                </div>
+                <input class="btn btn-success" type="submit" value="Register">
+            </form>
+            Already have an account? <a href="{% url 'login' %}">Log In here.</a>
         </div>
-        <div class="form-group">
-            <input class="form-control" type="password" name="confirmation" placeholder="Confirm Password">
-        </div>
-        <input class="btn btn-primary" type="submit" value="Register">
-    </form>
-
-    Already have an account? <a href="{% url 'login' %}">Log In here.</a>
+    </div>
 
 {% endblock %}
