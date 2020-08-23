@@ -29,6 +29,9 @@ function compose_email() {
 
 function load_mailbox(mailbox) {
   // Show the mailbox and hide other views
+  if (document.querySelector(".alert-danger")) {
+    document.querySelector(".alert-danger").style.display = "none";
+  }
   document.querySelector('#emails-view').style.display = 'block';
   document.querySelector('#compose-view').style.display = 'none';
 
@@ -91,6 +94,19 @@ function submit_email(e) {
       // Print result
       console.log(result);
       load_mailbox("sent");
+      if (result.error) {
+        if (document.querySelector(".alert-danger")) {
+          document.querySelector(".alert-danger").innerHTML = result.error;
+          document.querySelector(".alert-danger").style.display = "block";
+        }
+        else {
+          var newAlert = document.createElement("div");
+          newAlert.className = "alert alert-danger";
+          newAlert.innerHTML = result.error;
+          var getAlert = document.querySelector("#getAlert");
+          getAlert.insertBefore(newAlert, null);
+        }
+      }
   });
 }
 
@@ -134,6 +150,7 @@ function load_email(ev) {
         btn2.className = "btn btn-warning";
         btn2.dataset.emailid = `${ev.target.parentElement.dataset.emailid}`;
         btn2.innerHTML = "Archive";
+        btn3.style.display = "none";
         btn4.style.display = "block";
         btn4.className = "btn btn-primary";
         btn4.dataset.emailid = `${ev.target.parentElement.dataset.emailid}`;
@@ -217,7 +234,12 @@ function reply_email(emailId) {
     // Print email
     console.log(email);
     document.querySelector('#compose-recipients').value = email.sender;
-    document.querySelector('#compose-subject').value = "Re : " + email.subject;
+    if (!email.subject.startsWith("Re : ")) {
+      document.querySelector('#compose-subject').value = "Re : " + email.subject;
+    }
+    else {
+      document.querySelector('#compose-subject').value = email.subject;
+    }
     document.querySelector('#compose-body').value = "\r\n\r\n\r\n" + "Original message on " + email.timestamp + ": \r\n" + email.body;
   });
 }
